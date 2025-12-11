@@ -176,15 +176,12 @@
 </head>
 
 <body>
-
     <div class="container">
-
         <div class="top-bar">
             <div>
                 <h1>Design Pattern Register</h1>
                 <p class="subtitle">Manage and organize your design patterns</p>
             </div>
-
             <button class="btn" onclick="window.location.href='pattern.html'">➕ Create New Pattern</button>
         </div>
 
@@ -230,26 +227,18 @@
                 const shortIntent = p.intent && p.intent.length > 50
                     ? p.intent.substring(0, 50) + "…"
                     : (p.intent || "");
-
-                tr.innerHTML = `
-      <td>${p.name}</td>
-      <td>
-        <span class="badge ${p.type === "Creational" ? "creational" :
-                        p.type === "Structural" ? "structural" : "behavioral"
-                    }">${p.type}</span>
-      </td>
-      <td>${shortIntent}</td>
-      <td>${p.author || "N/A"}</td>
-      <td>${formatDate(p.created_at) || ""}</td>
-
-      <td>
-        <div class="actions">
-          <button class="action-btn" onclick="event.stopPropagation(); window.location.href='pattern.html?id=${p.id}'">Edit</button>
-          <button class="action-btn delete" onclick="event.stopPropagation(); deletePattern(${p.id})">Delete</button>
-        </div>
-      </td>
-    `;
-
+                    tr.innerHTML = `
+                    <td>${p.name}</td>
+                <td><span class="badge ${p.type === "Creational" ? "creational" : p.type === "Structural" ? "structural" : "behavioral"}">${p.type}</span></td>
+                <td>${shortIntent}</td>
+                <td>${p.author || "N/A"}</td>
+                <td>${formatDate(p.created_at) || ""}</td>
+                <td>
+                    <div class="actions">
+                    <button class="action-btn" onclick="event.stopPropagation(); window.location.href='pattern.html?id=${p.id}'">Edit</button>
+                    <button class="action-btn delete" onclick="event.stopPropagation(); deletePattern(${p.id})">Delete</button>
+                    </div>
+                </td>`;
                 list.appendChild(tr);
             });
         }
