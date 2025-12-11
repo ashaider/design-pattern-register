@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pattern Form</title>
+    <link rel="stylesheet" href="globals.css">
+
+    <!-- CodeMirror 5 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/php/php.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/css/css.min.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--background, #f5f5f5);
+            color: var(--foreground, #111);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: #555;
+            margin: 0 0 20px 0;
+        }
+
+        form {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 15px;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background: var(--primary, #333);
+            color: var(--primary-foreground, #fff);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+
+        .uses-list {
+            margin-top: 8px;
+        }
+
+        .uses-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            padding: 4px 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .uml-preview img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        .inline-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .inline-row input {
+            flex: 1;
+        }
+
+        .required {
+            color: red;
+            margin-left: 4px;
+            font-weight: bold;
+        }
+
+        .CodeMirror {
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="form-title">Create Pattern</h1>
+        <p class="subtitle" id="form-subtitle">Fill in the details to create a new pattern</p>
+
+        <form id="patternForm" enctype="multipart/form-data">
+            <label>Name <span class="required">*</span></label>
+            <input type="text" name="name" required>
+
+            <label>Type <span class="required">*</span></label>
+            <select name="type" required>
+                <option value="Creational">Creational</option>
+                <option value="Structural">Structural</option>
+                <option value="Behavioral">Behavioral</option>
+            </select>
+
+            <label>Intent <span class="required">*</span></label>
+            <textarea name="intent" rows="2" required></textarea>
+
+            <label>Problem & Solution</label>
+            <textarea name="problem" rows="3"></textarea>
+
+            <label>Implementation</label>
+            <textarea name="implementation" rows="3"></textarea>
+
+            <label>Uses</label>
+            <div class="inline-row">
+                <input type="text" id="new-use" placeholder="Add a use">
+                <button type="button" class="btn-outline" onclick="addUse()">Add</button>
+            </div>
+            <div class="uses-list" id="uses-list"></div>
+
+            <label>Tradeoffs</label>
+            <textarea name="tradeoffs" rows="2"></textarea>
+
+            <label>Author</label>
+            <input type="text" name="author">
+
+            <label>Code Snippet</label>
+            <select id="code-language">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="text/x-java">Java</option>
+                <option value="text/x-csrc">C</option>
+                <option value="text/x-c++src">C++</option>
+                <option value="text/x-csharp">C#</option>
+                <option value="htmlmixed">HTML</option>
+                <option value="css">CSS</option>
+                <option value="php">PHP</option>
+            </select>
+            <textarea name="code_snippet" id="code-snippet"></textarea>
+
+            <label>UML Image</label>
+            <input type="file" name="uml_image" id="uml" accept=".png,.jpg,.jpeg,.gif,.svg,.webp,.avif,.tiff,.bmp">
+            <div class="uml-preview" id="uml-preview"></div>
+
+            <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="btn-outline" onclick="cancelForm()">Cancel</button>
+                <button type="submit" class="btn-primary">Save Pattern</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let usesArr = [];
+        const patternId = new URLSearchParams(window.location.search).get('id');
+
+        // CodeMirror editor
+        const languageSelect = document.getElementById('code-language');
+        let codeEditor = CodeMirror.fromTextArea(document.getElementById('code-snippet'), {
+            lineNumbers: true,
+            mode: languageSelect.value,
+            theme: 'default',
+            matchBrackets: true,
+            autoCloseBrackets: true
+        });
+        languageSelect.addEventListener('change', () => {
+            codeEditor.setOption('mode', languageSelect.value);
+        });
+
+        // Uses list
+        function renderUses() {
+            const container = document.getElementById('uses-list');
+            container.innerHTML = '';
+            usesArr.forEach((use, i) => {
+                const div = document.createElement('div');
+                div.className = 'uses-item';
+                div.innerHTML = `<span>${use}</span><button type="button" onclick="removeUse(${i})">x</button>`;
+                container.appendChild(div);
+            });
+        }
+        function addUse() { const val = document.getElementById('new-use').value.trim(); if (val) { usesArr.push(val); document.getElementById('new-use').value = ''; renderUses(); } }
+        function removeUse(i) { usesArr.splice(i, 1); renderUses(); }
+        function cancelForm() { window.location.href = 'index.html'; }
+
+        // Load pattern when editing instead of loading all blanks
+        if (patternId) {
+            fetch(`/patterns/${patternId}`).then(r => r.json()).then(p => {
+                document.getElementById('form-title').textContent = 'Edit Pattern';
+                document.getElementById('form-subtitle').textContent = 'Update the details of this pattern';
+                document.querySelector("[name=name]").value = p.name;
+                document.querySelector("[name=type]").value = p.type;
+                document.querySelector("[name=intent]").value = p.intent;
+                document.querySelector("[name=problem]").value = p.problem;
+                document.querySelector("[name=implementation]").value = p.implementation;
+                document.querySelector("[name=tradeoffs]").value = p.tradeoffs;
+                document.querySelector("[name=author]").value = p.author;
+                codeEditor.setValue(p.code_snippet || '');
+                languageSelect.value = p.code_language || 'javascript';
+                codeEditor.setOption('mode', languageSelect.value);
+                if (typeof p.uses === 'string') { try { usesArr = JSON.parse(p.uses); } catch (e) { usesArr = [p.uses]; } }
+                else if (Array.isArray(p.uses)) { usesArr = p.uses; }
+                renderUses();
+                if (p.uml_image_path) {
+                    const img = document.createElement('img'); img.src = `/uploads/${p.uml_image_path}`; document.getElementById('uml-preview').appendChild(img);
+                }
+            });
+        }
+
+        // UML preview
+        document.getElementById('uml').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) { const reader = new FileReader(); reader.onload = function (evt) { document.getElementById('uml-preview').innerHTML = `<img src="${evt.target.result}">`; }; reader.readAsDataURL(file); }
+        });
+
+        // Form submit
+        document.getElementById('patternForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            formData.set('code_snippet', codeEditor.getValue());
+            formData.set('code_language', languageSelect.value);
+            formData.set('uses', JSON.stringify(usesArr));
+
+            const url = patternId ? `/patterns/${patternId}` : '/patterns';
+            const method = patternId ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, { method, body: formData });
+                const data = await res.json();
+                if (res.ok) { alert('Saved successfully'); window.location.href = 'index.html'; }
+                else { alert(`Error saving pattern: ${data.error || 'Unknown error'}`); }
+            } catch (err) { alert('Error saving pattern: ' + err.message); }
+        });
+    </script>
+</body>
+
+</html>

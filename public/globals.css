@@ -1,0 +1,7 @@
+:root {
+  --background: #f8fafc;
+  --foreground: #111;
+  --primary: #030213;
+  --primary-foreground: #fff;
+  --border: rgba(0,0,0,0.1);
+}
