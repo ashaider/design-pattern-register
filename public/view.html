@@ -121,6 +121,11 @@
         <div class="top-bar">
             <button class="btn btn-outline" onclick="goBack()">⬅ Back</button>
             <div>
+                <select id="export-format" class="btn btn-outline">
+                    <option value="json">JSON</option>
+                    <option value="csv">CSV</option>
+                </select>
+
                 <button class="btn btn-outline" onclick="exportPattern()">Export</button>
                 <button class="btn btn-primary" onclick="editPattern()">Edit</button>
             </div>
@@ -166,6 +171,7 @@
             <h3>Metadata</h3>
             <p><strong>Author:</strong> <span id="pattern-author"></span></p>
             <p><strong>Date Created:</strong> <span id="pattern-date"></span></p>
+            <p><strong>Date Last Updated:</strong> <span id="pattern-update-date"></span></p>
         </div>
     </div>
 
@@ -174,6 +180,11 @@
         const patternId = params.get('id');
         let patternData;
         let codeEditor;
+
+        function convertNewlinesToBr(text) {
+            return text.replace(/\n/g, '<br>');
+        }
+
 
         async function loadPattern() {
             const res = await fetch(`/patterns/${patternId}`);
@@ -184,11 +195,12 @@
             typeEl.textContent = patternData.type;
             typeEl.className = 'badge ' + patternData.type.toLowerCase();
             document.getElementById('pattern-intent').textContent = patternData.intent;
-            document.getElementById('pattern-problem').textContent = patternData.problem || 'N/A';
-            document.getElementById('pattern-implementation').textContent = patternData.implementation || 'N/A';
-            document.getElementById('pattern-tradeoffs').textContent = patternData.tradeoffs || 'N/A';
+            document.getElementById('pattern-problem').innerHTML = convertNewlinesToBr(patternData.problem) || 'N/A';
+            document.getElementById('pattern-implementation').innerHTML = convertNewlinesToBr(patternData.implementation) || 'N/A';
+            document.getElementById('pattern-tradeoffs').innerHTML = convertNewlinesToBr(patternData.tradeoffs) || 'N/A';
             document.getElementById('pattern-author').textContent = patternData.author || 'N/A';
             document.getElementById('pattern-date').textContent = formatDate(patternData.created_at);
+            document.getElementById('pattern-update-date').textContent = formatDate(patternData.updated_at);
 
             // Uses list
             const usesEl = document.getElementById('pattern-uses');
@@ -270,19 +282,23 @@
         function goBack() { window.location.href = 'index.html'; }
         function editPattern() { window.location.href = `pattern.html?id=${patternId}`; }
         function exportPattern() {
-            const dataStr = JSON.stringify(patternData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${patternData.name.replace(/\s+/g, '-').toLowerCase()}-pattern.json`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const format = document.getElementById('export-format').value;
+            window.location.href = `/patterns/${patternId}/export?format=${format}`;
             alert('Pattern exported!');
         }
         function formatDate(dtStr) {
             const d = new Date(dtStr);
-            return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            const formattedDate = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'America/New_York', // UTC-5 aka ETC
+                hour12: true
+            };
+            const formattedDateTime = d.toLocaleTimeString('en-US', options);
+
+            return `${formattedDate} at ${formattedDateTime}`;
         }
 
         loadPattern();

@@ -121,6 +121,42 @@ app.delete('/patterns/:id', (req, res) => {
     });
 });
 
+
+// Export single pattern (JSON or CSV)
+app.get('/patterns/:id/export', (req, res) => {
+    const format = (req.query.format || 'json').toLowerCase();
+    const patternId = req.params.id;
+
+    db.get('SELECT * FROM patterns WHERE id = ?', [patternId], (err, row) => {
+        if (err) return res.status(500).send(err.message);
+        if (!row) return res.status(404).send('Pattern not found');
+
+        if (format === 'csv') {
+            const headers = Object.keys(row).join(',');
+            const values = Object.values(row)
+                .map(v => `"${String(v ?? '').replace(/"/g, '""')}"`)
+                .join(',');
+
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="${row.name.replace(/\s+/g, '-').toLowerCase()}.csv"`
+            );
+            res.send(headers + '\n' + values);
+        } else {
+            const prettyPrintJson = JSON.stringify(row, null, 4);
+
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader(
+                'Content-Disposition',
+                `attachment; filename="${row.name.replace(/\s+/g, '-').toLowerCase()}.json"`
+            );
+            res.send(prettyPrintJson);
+        }
+    });
+});
+
+
 // Start server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

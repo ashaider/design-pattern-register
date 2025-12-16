@@ -223,11 +223,30 @@
             usesArr.forEach((use, i) => {
                 const div = document.createElement('div');
                 div.className = 'uses-item';
-                div.innerHTML = `<span>${use}</span><button type="button" onclick="removeUse(${i})">x</button>`;
+
+                // Create span with textContent to escape HTML
+                const span = document.createElement('span');
+                span.textContent = use;
+
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = 'x';
+                button.addEventListener('click', () => removeUse(i));
+
+                div.appendChild(span);
+                div.appendChild(button);
                 container.appendChild(div);
             });
         }
-        function addUse() { const val = document.getElementById('new-use').value.trim(); if (val) { usesArr.push(val); document.getElementById('new-use').value = ''; renderUses(); } }
+
+        function addUse() {
+            const val = document.getElementById('new-use').value.trim();
+            if (val) {
+                usesArr.push(val);
+                document.getElementById('new-use').value = '';
+                renderUses();
+            }
+        }
         function removeUse(i) { usesArr.splice(i, 1); renderUses(); }
         function cancelForm() { window.location.href = 'index.html'; }
 
